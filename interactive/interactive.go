@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/altay13/vertera/eventHandler"
+	"github.com/altay13/vertera/eventHandler/hazelcast"
 	"github.com/altay13/vertera/eventHandler/redis"
 )
 
@@ -28,12 +29,6 @@ func NewInteractive() *Interactive {
 		reader:   bufio.NewReader(os.Stdin),
 	}
 
-	// TODO: Just for test hardcode the redis db
-	conf := redis.DefaultConfig()
-	db := redis.NewRedis(conf)
-
-	inter.handler = eventHandler.NewEventHandler(db)
-
 	return inter
 }
 
@@ -47,6 +42,31 @@ func (inter *Interactive) Start() {
 }
 
 func (inter *Interactive) SetDatabase(dbName string, config string) {
+	var db eventHandler.EventStore
+	// TODO: Just for test hardcode the redis db
+	switch dbName {
+	case eventHandler.REDIS:
+		if inter.handler != nil {
+			if inter.handler.GetDBName() != eventHandler.REDIS {
+				inter.handler.CloseDB()
+			}
+		}
+		db = redis.NewRedis(redis.DefaultConfig())
+	case eventHandler.CASSANDRA:
+	case eventHandler.ROCKSDB:
+	case eventHandler.HAZELCAST:
+		if inter.handler != nil {
+			if inter.handler.GetDBName() != eventHandler.REDIS {
+				inter.handler.CloseDB()
+			}
+		}
+		db = hazelcast.NewHazelcast(hazelcast.DefaultConfig())
+	default:
+		fmt.Printf("There is no such database: %s\n", dbName)
+		return
+	}
+	fmt.Printf("Set to database: %s\n", dbName)
+	inter.handler = eventHandler.NewEventHandler(db)
 }
 
 func (inter *Interactive) parseCMD(cmd string) {
@@ -61,7 +81,8 @@ func (inter *Interactive) parseCMD(cmd string) {
 	switch cmds[0] {
 	case "use":
 		// use is for changing the backend DB [redis, cassandra, rocksdb]
-		// db := UseCommand(cmds[1:])
+		// TODO: think about configuration. Right now temp solution with default configuration
+		inter.SetDatabase(cmds[1], strings.Join(cmds[1:], " "))
 		return
 	case "var":
 		// var is for variable set. I have to persist the var in interactive session

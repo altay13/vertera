@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/altay13/vertera/eventHandler"
 	"github.com/altay13/vertera/interactive"
 )
 
@@ -22,7 +23,7 @@ func InteractiveCommand() CLI {
 	interactiveCommand := flag.NewFlagSet("interactive", flag.ExitOnError)
 
 	interactiveCLI := &InteractiveCLI{
-		dbs: map[string]bool{"redis": true, "cassandra": true, "rocksdb": true},
+		dbs: map[string]bool{eventHandler.REDIS: true, eventHandler.CASSANDRA: true, eventHandler.ROCKSDB: true},
 	}
 	interactiveCLI.ArgsPtr = make(map[string]*string)
 	interactiveCLI.ArgsPtr["db"] = interactiveCommand.String("db", "", "Specify the key/value database.(Optional)")
@@ -63,7 +64,7 @@ func (p *InteractiveCLI) Run() error {
 	inter := interactive.NewInteractive()
 	if len(p.selectedDB) > 0 {
 		// TODO: add set database method
-		// inter.SetDatabase(dbname, config)
+		inter.SetDatabase(p.selectedDB, *p.ArgsPtr["config"])
 	}
 	inter.Start()
 	return nil

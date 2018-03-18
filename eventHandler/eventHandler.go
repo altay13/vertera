@@ -70,6 +70,17 @@ func (h *EventHandler) startHandler() {
 	}
 }
 
+func (h *EventHandler) GetDBName() string {
+	if h.eventStore == nil {
+		return ""
+	}
+	return h.eventStore.GetName()
+}
+
+func (h *EventHandler) CloseDB() {
+	h.eventStore.Disconnect()
+}
+
 func (h *EventHandler) goFunc(fn func()) {
 	h.routines.Add(1)
 	go func() {

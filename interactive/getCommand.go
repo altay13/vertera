@@ -1,6 +1,8 @@
 package interactive
 
 import (
+	"fmt"
+
 	"github.com/altay13/vertera/eventHandler"
 )
 
@@ -42,7 +44,10 @@ func (cmd *GET) Run() string {
 
 		select {
 		case resp := <-respCh:
-			return string(resp.Value)
+			if resp.Err != nil {
+				return resp.Err.Error()
+			}
+			return fmt.Sprintf("\n%s\n", string(resp.Value))
 		}
 
 		// TODO: create an object and send it to SET routine for saving into DB!

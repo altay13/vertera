@@ -28,6 +28,7 @@ func (cmd *SET) Validate() error {
 }
 
 func (cmd *SET) Run() string {
+	respStr := ""
 
 	if err := cmd.Validate(); err != nil {
 		return err.Error()
@@ -48,11 +49,11 @@ func (cmd *SET) Run() string {
 		cmd.handler.RequestChan <- request
 		select {
 		case resp := <-respCh:
-			return string(resp.Value)
+			respStr = fmt.Sprintf("%s\n%s", respStr, resp.Err.Error())
 		}
 
 		// TODO: create an object and send it to SET routine for saving into DB!
 	}
 
-	return "set command is performed"
+	return fmt.Sprintf("%s\n", respStr)
 }

@@ -2,9 +2,6 @@ package redis
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/altay13/vertera/eventHandler"
@@ -22,8 +19,6 @@ func NewRedis(conf *Config) *Redis {
 	}
 
 	r.newPool()
-	r.cleanupHook()
-
 	return r
 }
 
@@ -46,24 +41,17 @@ func (r *Redis) newPool() {
 	}
 }
 
-func (r *Redis) cleanupHook() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	signal.Notify(c, syscall.SIGTERM)
-	signal.Notify(c, syscall.SIGKILL)
-
-	go func() {
-		<-c
-		r.pool.Close()
-		os.Exit(0)
-	}()
+func (r *Redis) Disconnect() {
+	r.pool.Close()
 }
 
 func (r *Redis) Set(event *eventHandler.Event) *eventHandler.Event {
 	conn := r.pool.Get()
 	defer conn.Close()
 
-	revent := &eventHandler.Event{}
+	revent := &eventHandler.Event{
+		Err: fmt.Errorf("Key %s is set", event.Key.(string)),
+	}
 
 	_, err := conn.Do("SET", event.Key, event.Value)
 	if err != nil {
@@ -84,15 +72,17 @@ func (r *Redis) Get(event *eventHandler.Event) *eventHandler.Event {
 		return revent
 	}
 
-	key := event.Key
-
-	val, err := redis.Bytes(conn.Do("GET", key))
+	val, err := redis.Bytes(conn.Do("GET", event.Key))
 	if err != nil {
 		revent.Err = fmt.Errorf("Failed to GET. %s", err.Error())
 	} else {
-		revent.Key = key
+		revent.Key = event.Key
 		revent.Value = val
 	}
 
 	return revent
+}
+
+func (r *Redis) GetName() string {
+	return eventHandler.REDIS
 }
