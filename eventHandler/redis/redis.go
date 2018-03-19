@@ -49,9 +49,7 @@ func (r *Redis) Set(event *eventHandler.Event) *eventHandler.Event {
 	conn := r.pool.Get()
 	defer conn.Close()
 
-	revent := &eventHandler.Event{
-		Err: fmt.Errorf("Key %s is set", event.Key.(string)),
-	}
+	revent := &eventHandler.Event{}
 
 	_, err := conn.Do("SET", event.Key, event.Value)
 	if err != nil {

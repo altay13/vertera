@@ -28,8 +28,8 @@ func (c *Tarantool) newConnection() {
 		Timeout:       time.Duration(c.Timeout) * time.Millisecond,
 		Reconnect:     time.Duration(c.Reconnect) * time.Second,
 		MaxReconnects: uint(c.MaxReconnects),
-		User:          c.User,
-		Pass:          c.Pass,
+		User:          "guest",
+		// Pass:          c.Pass,
 	}
 	c.client, _ = tarantool.Connect(c.Host, opts)
 
@@ -45,10 +45,11 @@ func (c *Tarantool) Disconnect() {
 
 func (c *Tarantool) Set(event *eventHandler.Event) *eventHandler.Event {
 	revent := &eventHandler.Event{
-		Err: fmt.Errorf("Key %s is set", event.Key.(string)),
+		Key:   event.Key,
+		Value: event.Value,
 	}
 
-	_, err := c.client.Insert("test", []interface{}{event.Key, event.Value})
+	_, err := c.client.Insert(c.Space, []interface{}{event.Key, event.Value})
 	if err != nil {
 		revent.Err = fmt.Errorf("Failed to SET. %s", err.Error())
 	}
@@ -64,12 +65,13 @@ func (c *Tarantool) Get(event *eventHandler.Event) *eventHandler.Event {
 		return revent
 	}
 
-	resp, err := c.client.Select("test", "primary", 0, 1, tarantool.IterGe, []interface{}{event.Key})
+	resp, err := c.client.Select(c.Space, "primary", 0, 1024, tarantool.IterEq, []interface{}{event.Key})
+
 	if err != nil {
 		revent.Err = fmt.Errorf("Failed to GET. %s", err.Error())
 	} else {
 		revent.Key = event.Key
-		revent.Value = resp.Data[1].([]byte)
+		revent.Value = resp.Data[0].([]interface{})[1].([]byte)
 	}
 
 	return revent

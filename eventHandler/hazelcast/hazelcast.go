@@ -37,9 +37,7 @@ func (h *Hazelcast) Disconnect() {
 }
 
 func (h *Hazelcast) Set(event *eventHandler.Event) *eventHandler.Event {
-	revent := &eventHandler.Event{
-		Err: fmt.Errorf("Key %s is set", event.Key.(string)),
-	}
+	revent := &eventHandler.Event{}
 
 	_, err := h.mp.TryPut(event.Key, event.Value)
 	if err != nil {

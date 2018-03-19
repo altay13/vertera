@@ -7,6 +7,7 @@ type Config struct {
 	MaxReconnects uint8
 	User          string
 	Pass          string
+	Space         string
 }
 
 func DefaultConfig() *Config {
@@ -17,6 +18,7 @@ func DefaultConfig() *Config {
 		MaxReconnects: 3,
 		User:          "test",
 		Pass:          "test",
+		Space:         "tester",
 	}
 
 	return config
