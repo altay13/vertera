@@ -15,8 +15,8 @@ func DefaultConfig() *Config {
 		Timeout:       500,
 		Reconnect:     1,
 		MaxReconnects: 3,
-		User:          "guest",
-		Pass:          "",
+		User:          "test",
+		Pass:          "test",
 	}
 
 	return config

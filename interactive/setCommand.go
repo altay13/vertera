@@ -52,7 +52,7 @@ func (cmd *SET) Run() {
 		select {
 		case resp := <-respCh:
 			if resp.Err != nil {
-				cmd.ui.Error(fmt.Sprintf("Failed to set the Key = %s.", resp.Key))
+				cmd.ui.Error(fmt.Sprintf("Failed to set the Key = %s.", dt[0]))
 				cmd.ui.Error(resp.Err.Error())
 				continue
 			} else {
