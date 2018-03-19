@@ -29,9 +29,17 @@ start-tarantool-container:
 ## Starts all DB containers
 start-all-container: start-redis-container start-cassandra-container start-rocksdb-container start-hazelcast-container start-tarantool-container
 
+## Kills all DB containers
+kill-all-containers:
+	docker stop redis-${CONTAINER_NAME} || true && docker rm redis-${CONTAINER_NAME} || true
+	docker stop cassandra-${CONTAINER_NAME} || true && docker rm cassandra-${CONTAINER_NAME} || true
+	docker stop hazelcast-${CONTAINER_NAME} || true && docker rm hazelcast-${CONTAINER_NAME} || true
+	docker stop tarantool-${CONTAINER_NAME} || true && docker rm tarantool-${CONTAINER_NAME} || true
+
 .PNONY: start-redis-container \
 	start-cassandra-container \
 	start-rocksdb-container \
 	start-hazelcast-container \
 	start-tarantool-container \
-	start-all-container
+	start-all-container \
+	kill-all-containers
