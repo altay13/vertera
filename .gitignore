@@ -1,1 +1,5 @@
 data
+cassandra-data
+redis-data
+hazelcast-data
+tarantool-data

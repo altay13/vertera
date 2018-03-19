@@ -5,18 +5,21 @@ import (
 	"strings"
 
 	"github.com/altay13/vertera/eventHandler"
+	"github.com/altay13/vertera/ui"
 )
 
 type SET struct {
 	args []string
 
 	handler *eventHandler.EventHandler
+	ui      *ui.InteractiveUI
 }
 
-func SetCommand(args []string, handler *eventHandler.EventHandler) InterCMD {
+func SetCommand(args []string, handler *eventHandler.EventHandler, ui *ui.InteractiveUI) InterCMD {
 	return &SET{
 		args:    args,
 		handler: handler,
+		ui:      ui,
 	}
 }
 
@@ -27,11 +30,10 @@ func (cmd *SET) Validate() error {
 	return nil
 }
 
-func (cmd *SET) Run() string {
-	respStr := ""
-
+func (cmd *SET) Run() {
 	if err := cmd.Validate(); err != nil {
-		return err.Error()
+		cmd.ui.Error(err.Error())
+		return
 	}
 
 	for _, v := range cmd.args {
@@ -49,11 +51,16 @@ func (cmd *SET) Run() string {
 		cmd.handler.RequestChan <- request
 		select {
 		case resp := <-respCh:
-			respStr = fmt.Sprintf("%s\n%s", respStr, resp.Err.Error())
+			if resp.Err != nil {
+				cmd.ui.Error(fmt.Sprintf("Failed to set the Key = %s.", resp.Key))
+				cmd.ui.Error(resp.Err.Error())
+				continue
+			} else {
+				cmd.ui.Output(fmt.Sprintf("The Key = %s is set.", resp.Key))
+				cmd.ui.Output(fmt.Sprintf("Value = %s", resp.Value))
+			}
 		}
 
 		// TODO: create an object and send it to SET routine for saving into DB!
 	}
-
-	return fmt.Sprintf("%s\n", respStr)
 }

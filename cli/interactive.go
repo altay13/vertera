@@ -23,7 +23,13 @@ func InteractiveCommand() CLI {
 	interactiveCommand := flag.NewFlagSet("interactive", flag.ExitOnError)
 
 	interactiveCLI := &InteractiveCLI{
-		dbs: map[string]bool{eventHandler.REDIS: true, eventHandler.CASSANDRA: true, eventHandler.ROCKSDB: true},
+		dbs: map[string]bool{
+			eventHandler.REDIS:     true,
+			eventHandler.CASSANDRA: true,
+			eventHandler.ROCKSDB:   true,
+			eventHandler.HAZELCAST: true,
+			eventHandler.TARANTOOL: true,
+		},
 	}
 	interactiveCLI.ArgsPtr = make(map[string]*string)
 	interactiveCLI.ArgsPtr["db"] = interactiveCommand.String("db", "", "Specify the key/value database.(Optional)")
@@ -63,7 +69,6 @@ func (p *InteractiveCLI) Validate() bool {
 func (p *InteractiveCLI) Run() error {
 	inter := interactive.NewInteractive()
 	if len(p.selectedDB) > 0 {
-		// TODO: add set database method
 		inter.SetDatabase(p.selectedDB, *p.ArgsPtr["config"])
 	}
 	inter.Start()

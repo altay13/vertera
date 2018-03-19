@@ -14,11 +14,6 @@ func (cmd *HELP) Validate() error {
 	return nil
 }
 
-func (cmd *HELP) Run() string {
+func (cmd *HELP) Run() {
 
-	if err := cmd.Validate(); err != nil {
-		return err.Error()
-	}
-
-	return "help command is performed"
 }

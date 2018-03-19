@@ -4,18 +4,21 @@ import (
 	"fmt"
 
 	"github.com/altay13/vertera/eventHandler"
+	"github.com/altay13/vertera/ui"
 )
 
 type GET struct {
 	args []string
 
 	handler *eventHandler.EventHandler
+	ui      *ui.InteractiveUI
 }
 
-func GetCommand(args []string, handler *eventHandler.EventHandler) InterCMD {
+func GetCommand(args []string, handler *eventHandler.EventHandler, ui *ui.InteractiveUI) InterCMD {
 	return &GET{
 		args:    args,
 		handler: handler,
+		ui:      ui,
 	}
 }
 
@@ -23,10 +26,11 @@ func (cmd *GET) Validate() error {
 	return nil
 }
 
-func (cmd *GET) Run() string {
+func (cmd *GET) Run() {
 
 	if err := cmd.Validate(); err != nil {
-		return err.Error()
+		cmd.ui.Error(err.Error())
+		return
 	}
 
 	for _, v := range cmd.args {
@@ -45,13 +49,12 @@ func (cmd *GET) Run() string {
 		select {
 		case resp := <-respCh:
 			if resp.Err != nil {
-				return resp.Err.Error()
+				cmd.ui.Error(resp.Err.Error())
+			} else {
+				cmd.ui.Output(fmt.Sprintf("Key = %s", resp.Key))
+				cmd.ui.Output(fmt.Sprintf("Value = %s", resp.Value))
 			}
-			return fmt.Sprintf("\n%s\n", string(resp.Value))
 		}
-
-		// TODO: create an object and send it to SET routine for saving into DB!
+		// TODO: add timeout exception
 	}
-
-	return "get command is performed"
 }

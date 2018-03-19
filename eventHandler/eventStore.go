@@ -5,6 +5,7 @@ const (
 	CASSANDRA string = "cassandra"
 	ROCKSDB   string = "rocksdb"
 	HAZELCAST string = "hazelcast"
+	TARANTOOL string = "tarantool"
 )
 
 type EventStore interface {

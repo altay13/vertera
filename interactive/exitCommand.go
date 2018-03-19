@@ -13,13 +13,11 @@ func (cmd *EXIT) Validate() error {
 	return nil
 }
 
-func (cmd *EXIT) Run() string {
+func (cmd *EXIT) Run() {
 
-	os.Exit(1)
+	os.Exit(0)
 
 	if err := cmd.Validate(); err != nil {
-		return err.Error()
+		err.Error()
 	}
-
-	return "exit command is performed"
 }
