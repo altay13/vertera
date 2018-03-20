@@ -44,30 +44,15 @@ func (inter *Interactive) Start() {
 
 func (inter *Interactive) SetDatabase(dbName string, config string) {
 	var db eventHandler.EventStore
-	// TODO: Just for test hardcode the redis db
+	inter.handler.CloseDB()
 	switch dbName {
 	case eventHandler.REDIS:
-		if inter.handler != nil {
-			if inter.handler.GetDBName() != eventHandler.REDIS {
-				inter.handler.CloseDB()
-			}
-		}
 		db = redis.NewRedis(redis.DefaultConfig())
 	case eventHandler.CASSANDRA:
 	case eventHandler.ROCKSDB:
 	case eventHandler.HAZELCAST:
-		if inter.handler != nil {
-			if inter.handler.GetDBName() != eventHandler.HAZELCAST {
-				inter.handler.CloseDB()
-			}
-		}
 		db = hazelcast.NewHazelcast(hazelcast.DefaultConfig())
 	case eventHandler.TARANTOOL:
-		if inter.handler != nil {
-			if inter.handler.GetDBName() != eventHandler.TARANTOOL {
-				inter.handler.CloseDB()
-			}
-		}
 		db = tarantool.NewTarantool(tarantool.DefaultConfig())
 	default:
 		inter.ui.Error(fmt.Sprintf("There is no such database: %s", dbName))
@@ -82,6 +67,7 @@ func (inter *Interactive) parseCMD(cmd string) {
 	cmds := strings.Fields(strings.Replace(cmd, " = ", "=", -1))
 	if len(cmds) <= 0 {
 		inter.ui.Info("Please enter the command. Type help if you don't know what to do.")
+		return
 	}
 
 	var coreInterCmd InterCMD
@@ -99,7 +85,7 @@ func (inter *Interactive) parseCMD(cmd string) {
 	case "get":
 		coreInterCmd = GetCommand(cmds[1:], inter.handler, inter.ui)
 	case "help":
-		coreInterCmd = HelpCommand(cmds)
+		coreInterCmd = HelpCommand(cmds[1:], inter.ui)
 	case "exit":
 		coreInterCmd = ExitCommand()
 	default:

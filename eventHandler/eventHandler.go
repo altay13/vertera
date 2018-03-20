@@ -78,7 +78,9 @@ func (h *EventHandler) GetDBName() string {
 }
 
 func (h *EventHandler) CloseDB() {
-	h.eventStore.Disconnect()
+	if h != nil {
+		h.eventStore.Disconnect()
+	}
 }
 
 func (h *EventHandler) goFunc(fn func()) {

@@ -65,11 +65,15 @@ func (c *Tarantool) Get(event *eventHandler.Event) *eventHandler.Event {
 		return revent
 	}
 
-	resp, err := c.client.Select(c.Space, "primary", 0, 1024, tarantool.IterEq, []interface{}{event.Key})
+	resp, err := c.client.Select(c.Space, "primary", 0, 1, tarantool.IterEq, []interface{}{event.Key})
 
 	if err != nil {
 		revent.Err = fmt.Errorf("Failed to GET. %s", err.Error())
 	} else {
+		if len(resp.Data) == 0 {
+			revent.Err = fmt.Errorf("Failed to GET. Nil returned.")
+			return revent
+		}
 		revent.Key = event.Key
 		revent.Value = resp.Data[0].([]interface{})[1].([]byte)
 	}

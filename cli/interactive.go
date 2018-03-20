@@ -13,7 +13,6 @@ import (
 type InteractiveCLI struct {
 	ArgsPtr map[string]*string
 
-	dbs        map[string]bool
 	selectedDB string
 	config     string
 }
@@ -22,15 +21,7 @@ type InteractiveCLI struct {
 func InteractiveCommand() CLI {
 	interactiveCommand := flag.NewFlagSet("interactive", flag.ExitOnError)
 
-	interactiveCLI := &InteractiveCLI{
-		dbs: map[string]bool{
-			eventHandler.REDIS:     true,
-			eventHandler.CASSANDRA: true,
-			eventHandler.ROCKSDB:   true,
-			eventHandler.HAZELCAST: true,
-			eventHandler.TARANTOOL: true,
-		},
-	}
+	interactiveCLI := &InteractiveCLI{}
 	interactiveCLI.ArgsPtr = make(map[string]*string)
 	interactiveCLI.ArgsPtr["db"] = interactiveCommand.String("db", "", "Specify the key/value database.(Optional)")
 	interactiveCLI.ArgsPtr["config"] = interactiveCommand.String("config", "", "Specify the connection string to database.(Optional)")
@@ -50,7 +41,7 @@ func InteractiveCommand() CLI {
 // Validate ...
 func (p *InteractiveCLI) Validate() bool {
 	if len(*p.ArgsPtr["db"]) > 0 {
-		if !p.dbs[*p.ArgsPtr["db"]] {
+		if !eventHandler.DBs[*p.ArgsPtr["db"]] {
 			log.Printf("[ERR] - Failed to initiate %s interactive console.\n", *p.ArgsPtr["db"])
 			return false
 		}

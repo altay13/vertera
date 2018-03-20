@@ -37,7 +37,10 @@ func (h *Hazelcast) Disconnect() {
 }
 
 func (h *Hazelcast) Set(event *eventHandler.Event) *eventHandler.Event {
-	revent := &eventHandler.Event{}
+	revent := &eventHandler.Event{
+		Key:   event.Key,
+		Value: event.Value,
+	}
 
 	_, err := h.mp.TryPut(event.Key, event.Value)
 	if err != nil {

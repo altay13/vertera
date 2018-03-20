@@ -1,4 +1,4 @@
-## display the help text
+## Displays commands
 help:
 	$(info Available targets)
 	$(info ------------------)
