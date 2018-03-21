@@ -62,6 +62,10 @@ func (h *Hazelcast) Get(event *eventHandler.Event) *eventHandler.Event {
 	if err != nil {
 		revent.Err = fmt.Errorf("Failed to GET. %s", err.Error())
 	} else {
+		if val == nil {
+			revent.Err = fmt.Errorf("Failed to GET. Nil returned.")
+			return revent
+		}
 		revent.Key = event.Key
 		revent.Value = val.([]byte)
 	}
