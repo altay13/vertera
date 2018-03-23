@@ -27,6 +27,10 @@ func (cmd *SET) Validate() error {
 	if !strings.ContainsAny(strings.Join(cmd.args, " "), "=") {
 		return fmt.Errorf("Syntax error in command. Please enter help for manual.")
 	}
+
+	if len(cmd.handler.GetDBName()) == 0 {
+		return fmt.Errorf("Please connect to database. Type `help` if you don't know what to do.")
+	}
 	return nil
 }
 

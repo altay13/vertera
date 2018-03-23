@@ -20,6 +20,7 @@ get-dependencies:
 	go get github.com/gocql/gocql
 	go get github.com/hazelcast/hazelcast-go-client
 	go get github.com/tarantool/go-tarantool
+	go get github.com/altay13/godatastructures
 
 ## Starts all available db containers and runs interactive console
 run-example-interactive-all: start-all-container

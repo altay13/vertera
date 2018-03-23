@@ -23,6 +23,9 @@ func GetCommand(args []string, handler *eventHandler.EventHandler, ui *ui.Intera
 }
 
 func (cmd *GET) Validate() error {
+	if len(cmd.handler.GetDBName()) == 0 {
+		return fmt.Errorf("Please connect to database. Type `help` if you don't know what to do.")
+	}
 	return nil
 }
 

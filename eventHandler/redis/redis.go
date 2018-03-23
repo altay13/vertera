@@ -13,13 +13,21 @@ type Redis struct {
 	pool *redis.Pool
 }
 
-func NewRedis(conf *Config) *Redis {
+func NewRedis(conf *Config) (*Redis, error) {
 	r := &Redis{
 		Config: *conf,
 	}
 
 	r.newPool()
-	return r
+
+	conn := r.pool.Get()
+	defer conn.Close()
+	err := r.pool.TestOnBorrow(conn, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	return r, nil
 }
 
 func (r *Redis) newPool() {

@@ -71,6 +71,9 @@ func (h *EventHandler) startHandler() {
 }
 
 func (h *EventHandler) GetDBName() string {
+	if h == nil {
+		return ""
+	}
 	if h.eventStore == nil {
 		return ""
 	}

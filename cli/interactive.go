@@ -60,7 +60,7 @@ func (p *InteractiveCLI) Validate() bool {
 func (p *InteractiveCLI) Run() error {
 	inter := interactive.NewInteractive()
 	if len(p.selectedDB) > 0 {
-		inter.SetDatabase(p.selectedDB, *p.ArgsPtr["config"])
+		go inter.SetDatabase(p.selectedDB, *p.ArgsPtr["config"])
 	}
 	inter.Start()
 	return nil

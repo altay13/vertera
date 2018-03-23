@@ -14,22 +14,29 @@ type Hazelcast struct {
 	mp     core.IMap
 }
 
-func NewHazelcast(conf *Config) *Hazelcast {
+func NewHazelcast(conf *Config) (*Hazelcast, error) {
 	h := &Hazelcast{
 		Config: *conf,
 	}
 
-	h.newCluster()
-	return h
+	err := h.newCluster()
+	if err != nil {
+		return nil, err
+	}
+	return h, nil
 }
 
-func (h *Hazelcast) newCluster() {
+func (h *Hazelcast) newCluster() error {
 	config := hazelcast.NewHazelcastConfig()
 	config.ClientNetworkConfig().AddAddress(h.Host)
-
-	h.client, _ = hazelcast.NewHazelcastClientWithConfig(config)
+	var err error
+	h.client, err = hazelcast.NewHazelcastClientWithConfig(config)
+	if err != nil {
+		return err
+	}
 
 	h.mp, _ = h.client.GetMap("gohazelcast")
+	return nil
 }
 
 func (h *Hazelcast) Disconnect() {

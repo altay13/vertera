@@ -14,16 +14,19 @@ type Tarantool struct {
 	client *tarantool.Connection
 }
 
-func NewTarantool(conf *Config) *Tarantool {
+func NewTarantool(conf *Config) (*Tarantool, error) {
 	c := &Tarantool{
 		Config: *conf,
 	}
 
-	c.newConnection()
-	return c
+	err := c.newConnection()
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }
 
-func (c *Tarantool) newConnection() {
+func (c *Tarantool) newConnection() error {
 	opts := tarantool.Opts{
 		Timeout:       time.Duration(c.Timeout) * time.Millisecond,
 		Reconnect:     time.Duration(c.Reconnect) * time.Second,
@@ -31,12 +34,20 @@ func (c *Tarantool) newConnection() {
 		User:          "guest",
 		// Pass:          c.Pass,
 	}
-	c.client, _ = tarantool.Connect(c.Host, opts)
+	var err error
+	c.client, err = tarantool.Connect(c.Host, opts)
+	if err != nil {
+		return err
+	}
 
 	resp, err := c.client.Ping()
+	if err != nil {
+		return err
+	}
 	log.Println(resp.Code)
 	log.Println(resp.Data)
-	log.Println(err)
+
+	return nil
 }
 
 func (c *Tarantool) Disconnect() {

@@ -7,6 +7,10 @@ type EventStore interface {
 	Disconnect()
 }
 
+type EventStoreConfig interface {
+	SetByConfigString(string) error
+}
+
 const (
 	REDIS     string = "redis"
 	CASSANDRA string = "cassandra"
